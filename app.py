@@ -12,6 +12,7 @@ app = Flask(__name__)
 def collectData():
     global response
     url = (request.get_json())["url"]
+
     # throw an exception incase the url not found
     if not url:
         return jsonify({'error': 'URL parameter is missing'}), 400
@@ -22,9 +23,8 @@ def collectData():
         html = response.text
         soup = BeautifulSoup(html, 'lxml')
 
-        # get post title and post tags
-        post_title = (data_collector.getPostTitle(soup))["post_title"]
-        post_tags = (data_collector.getPostTitle(soup))["post_tags"]
+        post_title = (data_collector.getPostTitle(soup))["post_title"]  # get post title
+        post_tags = (data_collector.getPostTitle(soup))["post_tags"]  # get post tags
 
         # get post type
         post_type = data_collector.getPostType(soup)
@@ -32,25 +32,19 @@ def collectData():
         if post_type != "product":
             return jsonify({'error': 'The post type must be of type product'}), 400
 
-        # get domain
-        domain = data_collector.getDomain(soup)
+        domain = data_collector.getDomain(soup)  # get domain
+        description = data_collector.getPostDescription(soup)  # get description
+        post_image = data_collector.getPostImage(soup)  # get post image
+        post_currency = data_collector.getPostCurrency(soup)  # get post currency
 
-        # get description
-        description = data_collector.getPostDescription(soup)
+        post_discount_price = data_collector.getPostPrice(soup)["post_discount_price"]  # get post discount price
+        post_base_price = data_collector.getPostPrice(soup)["post_base_price"]  # get post base  price
 
-        # get post image
-        post_image = data_collector.getPostImage(soup)
-
-        # get post currency
-        post_currency = data_collector.getPostCurrency(soup)
-
-        # get post price
-        post_price = data_collector.getPostPrice(soup)
-
-        # get post vendor
-        post_vendor = data_collector.getPostVendor(soup)
-
-        return {
+        post_vendor = data_collector.getPostVendor(soup)  # get post vendor
+        post_date = datetime.now().date().isoformat()  # get post date
+        post_id = data_collector.getPostId(soup)  # get post id
+        post_items = data_collector.getPostItems(soup)  # get post items
+        data = {
             "post_title": post_title,
             "post_tags": post_tags,
             "post_url": url,
@@ -59,10 +53,14 @@ def collectData():
             "description": description,
             "post_image": post_image,
             "post_currency": post_currency,
-            "post_price": post_price,
-            "post_vendor": post_vendor
+            "post_discount_price": post_discount_price,
+            "post_base_price": post_base_price,
+            "post_vendor": post_vendor,
+            "post_date": post_date,
+            "post_id": post_id,
+            "post_items": post_items
         }
-    # exception incase the url is wrong or any http errors
+    # exception incase the url is wrong or any http exceptions
     except requests.exceptions.HTTPError as http_err:
         return jsonify({'error': f'HTTP error occurred: {http_err}'}), response.status_code
     except requests.exceptions.ConnectionError as conn_err:
