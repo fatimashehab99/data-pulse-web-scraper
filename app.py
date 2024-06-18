@@ -4,6 +4,7 @@ import requests
 from datetime import datetime
 from google.cloud import storage
 import Functions.data_collector_functions as data_collector
+import Functions.GCP_functions as GCP_functions
 
 app = Flask(__name__)
 
@@ -58,8 +59,12 @@ def collectData():
             "post_vendor": post_vendor,
             "post_date": post_date,
             "post_id": post_id,
-            "post_items": post_items
+            "post_items": post_items,
+            "ip": "172.69.87.193",
+            "user_id": "user123",
+            "device": "Mobile"
         }
+        return {"message": GCP_functions.append_json_to_gcs("data-pulse", "data/logs.json", data)}
     # exception incase the url is wrong or any http exceptions
     except requests.exceptions.HTTPError as http_err:
         return jsonify({'error': f'HTTP error occurred: {http_err}'}), response.status_code
