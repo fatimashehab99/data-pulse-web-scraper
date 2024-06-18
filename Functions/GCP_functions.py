@@ -1,7 +1,5 @@
-# this function is used to append the json data to cloud storage file
-import json
-
 from google.cloud import storage
+import json
 
 
 def append_json_to_gcs(bucket_name, file_name, data):
@@ -15,10 +13,9 @@ def append_json_to_gcs(bucket_name, file_name, data):
     try:
         if blob.exists():  # Check if the blob exists
             existing_data = json.loads(blob.download_as_text())  # Download the existing data
-            # If the existing data is a dictionary, convert it to a list of dictionaries
             if isinstance(existing_data, dict):
                 existing_data = [existing_data]
-        else:  # If the file does not exist, start with an empty list
+        else:
             existing_data = []
     except Exception as e:
         return f"Error checking blob existence or downloading existing data: {e}"
@@ -30,7 +27,6 @@ def append_json_to_gcs(bucket_name, file_name, data):
         return f"Error appending new data or converting to JSON: {e}"
 
     try:
-        # Upload the JSON string to the blob
         blob.upload_from_string(updated_json_data, content_type='application/json')
     except Exception as e:
         return f"Error uploading updated data to GCS: {e}"

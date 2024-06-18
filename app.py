@@ -5,12 +5,18 @@ from datetime import datetime
 from google.cloud import storage
 import Functions.data_collector_functions as data_collector
 import Functions.GCP_functions as GCP_functions
+import logging
 
 app = Flask(__name__)
 
 
 @app.route('/collect')
 def collectData():
+    # logging
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    logger.info('Starting the web scraping process.')
+
     global response
     url = (request.get_json())["url"]
 
