@@ -10,7 +10,8 @@ import logging
 app = Flask(__name__)
 
 
-@app.route('/collect')
+
+@app.route('/collect', methods=['POST'])
 def collectData():
     # logging
     logging.basicConfig(level=logging.INFO)
