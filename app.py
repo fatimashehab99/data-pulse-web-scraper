@@ -11,6 +11,7 @@ app = Flask(__name__)
 
 
 
+
 @app.route('/collect', methods=['POST'])
 def collectData():
     # logging

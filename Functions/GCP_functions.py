@@ -2,6 +2,9 @@ from google.cloud import storage
 import json
 
 
+from google.cloud import storage
+import json
+
 def append_json_to_gcs(bucket_name, file_name, data):
     try:
         storage_client = storage.Client()  # Initialize a client
@@ -12,23 +15,24 @@ def append_json_to_gcs(bucket_name, file_name, data):
 
     try:
         if blob.exists():  # Check if the blob exists
-            existing_data = json.loads(blob.download_as_text())  # Download the existing data
-            if isinstance(existing_data, dict):
-                existing_data = [existing_data]
+            existing_data = blob.download_as_text()  # Download the existing data
+            if existing_data.strip():  # If the file is not empty
+                existing_data += '\n'  # Add a newline to separate JSON objects
         else:
-            existing_data = []
+            existing_data = ""
     except Exception as e:
         return f"Error checking blob existence or downloading existing data: {e}"
 
     try:
-        existing_data.append(data)  # Append the new data
-        updated_json_data = json.dumps(existing_data, indent=4)  # Convert the updated data to JSON string
+        new_data = json.dumps(data)  # Convert the new data to JSON string
+        updated_data = existing_data + new_data  # Concatenate the existing data with the new data
     except Exception as e:
         return f"Error appending new data or converting to JSON: {e}"
 
     try:
-        blob.upload_from_string(updated_json_data, content_type='application/json')
+        blob.upload_from_string(updated_data, content_type='application/json')
     except Exception as e:
         return f"Error uploading updated data to GCS: {e}"
 
     return f"Data appended to {file_name} in bucket {bucket_name}."
+
